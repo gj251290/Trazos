@@ -15,8 +15,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -173,23 +175,22 @@ public class FrmEditor extends JFrame {
 
     private void btnCargarClick(ActionEvent evt) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Guardar trazo como");
+        fileChooser.setDialogTitle("Cargar dibujo");
 
+        // Filtro para solo mostrar archivos .obj
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Dibujos (*.obj)", "obj"));
 
-        int userSelection = fileChooser.showSaveDialog(this);
+        int userSelection = fileChooser.showOpenDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-
-            if (!selectedFile.getName().toLowerCase().endsWith(".obj")) {
-                selectedFile = new File(selectedFile.getAbsolutePath() + ".obj");
-            }
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
-                for (Trazo trazo : trazos) {
-                    writer.write(trazo.tipo + "," + trazo.x1 + "," + trazo.y1 + "," + trazo.x2 + "," + trazo.y2);
-                    writer.newLine();
+            trazos.clear();
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    trazos.add(new Trazo(data[0], Integer.parseInt(data[1]), Integer.parseInt(data[2]),
+                            Integer.parseInt(data[3]), Integer.parseInt(data[4])));
                 }
+                repaint();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -246,6 +247,7 @@ public class FrmEditor extends JFrame {
     private void pnlGraficaMouseClicked(MouseEvent evt) {
         if (estado == Estado.TRAZANDO) {
             String tipo = (String) cmbTipo.getSelectedItem();
+
             trazos.add(new Trazo(tipo, x, y, x2, y2));
             estado = Estado.NADA;
             pnlGrafica.repaint();
@@ -260,6 +262,7 @@ public class FrmEditor extends JFrame {
 
     private void pnlGraficaMouseMoved(MouseEvent evt) {
         if (estado == Estado.TRAZANDO) {
+
             x2 = evt.getX();
             y2 = evt.getY();
             pnlGrafica.repaint();

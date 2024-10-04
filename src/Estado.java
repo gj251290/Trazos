@@ -1,3 +1,5 @@
 public enum Estado {
-    NADA, TRAZANDO, SELECCIONANDO
+    NADA,
+    TRAZANDO,
+    SELECCIONANDO
 }
