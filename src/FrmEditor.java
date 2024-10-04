@@ -78,9 +78,9 @@ public class FrmEditor extends JFrame {
             }
         };
 
-        btnCargar.setIcon(new ImageIcon(getClass().getResource("/iconos/AbrirArchivos.png")));
+        btnCargar.setIcon(new ImageIcon(getClass().getResource("/iconos/cargar.png")));
         btnCargar.setToolTipText("Agregar");
-        btnCargar.setPreferredSize(new Dimension(60, 50));
+        btnCargar.setPreferredSize(new Dimension(60, 32));
         btnCargar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 btnCargarClick(evt);
@@ -88,9 +88,9 @@ public class FrmEditor extends JFrame {
         });
         tbEditor.add(btnCargar);
 
-        btnGuardar.setIcon(new ImageIcon(getClass().getResource("/iconos/Guardar.png")));
+        btnGuardar.setIcon(new ImageIcon(getClass().getResource("/iconos/guardar.png")));
         btnGuardar.setToolTipText("Guardar");
-        btnGuardar.setPreferredSize(new Dimension(60, 50));
+        btnGuardar.setPreferredSize(new Dimension(60, 32));
         btnGuardar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 btnGuardarClick(evt);
@@ -99,12 +99,12 @@ public class FrmEditor extends JFrame {
         tbEditor.add(btnGuardar);
 
         cmbTipo.setModel(new DefaultComboBoxModel<>(new String[] { "Línea", "Rectángulo", "Círculo" }));
-        cmbTipo.setPreferredSize(new Dimension(100, 50));
+        cmbTipo.setPreferredSize(new Dimension(100, 32));
         tbEditor.add(cmbTipo);
 
-        btnSeleccionar.setIcon(new ImageIcon(getClass().getResource("/iconos/Seleccionar.png")));
+        btnSeleccionar.setIcon(new ImageIcon(getClass().getResource("/iconos/seleccionar.png")));
         btnSeleccionar.setToolTipText("Seleccionar");
-        btnSeleccionar.setPreferredSize(new Dimension(60, 50));
+        btnSeleccionar.setPreferredSize(new Dimension(60, 32));
         btnSeleccionar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 btnSeleccionarClick(evt);
@@ -112,9 +112,9 @@ public class FrmEditor extends JFrame {
         });
         tbEditor.add(btnSeleccionar);
 
-        btnEliminar.setIcon(new ImageIcon(getClass().getResource("/iconos/Eliminar.png")));
+        btnEliminar.setIcon(new ImageIcon(getClass().getResource("/iconos/eliminar.png")));
         btnEliminar.setToolTipText("Eliminar");
-        btnEliminar.setPreferredSize(new Dimension(60, 50));
+        btnEliminar.setPreferredSize(new Dimension(60, 32));
         btnEliminar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 btnEliminarClick(evt);
@@ -148,6 +148,7 @@ public class FrmEditor extends JFrame {
         setSize(800, 600);
         setTitle("Editor de gráficas");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
     }
 
     private void limpiarPanel() {
