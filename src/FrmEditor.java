@@ -6,6 +6,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.JOptionPane;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -39,8 +40,13 @@ public class FrmEditor extends JFrame {
     int y;
     int x2;
     int y2;
+    int xInicial;
+    int xFinal;
+    int yInicial;
+    int yFinal;
     Color color;
 
+    Trazo trazoSeleccionado = null;
     LinkedList<Trazo> trazos = new LinkedList<>();
 
     public FrmEditor() {
@@ -74,12 +80,16 @@ public class FrmEditor extends JFrame {
                             g.drawOval(Math.min(x, x2), Math.min(y, y2), Math.abs(x2 - x), Math.abs(y2 - y));
                             break;
                     }
+                } else if (estado == Estado.SELECCIONANDO) {
+                    g.setColor(Color.YELLOW);
+                    g.drawRect(Math.min(xInicial, xFinal), Math.min(yInicial, yFinal), Math.abs(xFinal - xInicial),
+                            Math.abs(yFinal - yInicial));
                 }
             }
         };
 
         btnCargar.setIcon(new ImageIcon(getClass().getResource("/iconos/cargar.png")));
-        btnCargar.setToolTipText("Agregar");
+        btnCargar.setToolTipText("Cargar dibujo");
         btnCargar.setPreferredSize(new Dimension(60, 32));
         btnCargar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -89,7 +99,7 @@ public class FrmEditor extends JFrame {
         tbEditor.add(btnCargar);
 
         btnGuardar.setIcon(new ImageIcon(getClass().getResource("/iconos/guardar.png")));
-        btnGuardar.setToolTipText("Guardar");
+        btnGuardar.setToolTipText("Guardar dibujo");
         btnGuardar.setPreferredSize(new Dimension(60, 32));
         btnGuardar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -103,7 +113,7 @@ public class FrmEditor extends JFrame {
         tbEditor.add(cmbTipo);
 
         btnSeleccionar.setIcon(new ImageIcon(getClass().getResource("/iconos/seleccionar.png")));
-        btnSeleccionar.setToolTipText("Seleccionar");
+        btnSeleccionar.setToolTipText("Seleccionar trazo");
         btnSeleccionar.setPreferredSize(new Dimension(60, 32));
         btnSeleccionar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -113,7 +123,7 @@ public class FrmEditor extends JFrame {
         tbEditor.add(btnSeleccionar);
 
         btnEliminar.setIcon(new ImageIcon(getClass().getResource("/iconos/eliminar.png")));
-        btnEliminar.setToolTipText("Eliminar");
+        btnEliminar.setToolTipText("Eliminar trazo");
         btnEliminar.setPreferredSize(new Dimension(60, 32));
         btnEliminar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -178,7 +188,6 @@ public class FrmEditor extends JFrame {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Cargar dibujo");
 
-        // Filtro para solo mostrar archivos .obj
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Dibujos (*.obj)", "obj"));
 
         int userSelection = fileChooser.showOpenDialog(this);
@@ -224,40 +233,77 @@ public class FrmEditor extends JFrame {
     }
 
     private void btnSeleccionarClick(ActionEvent evt) {
+        boolean habilitado = cmbTipo.isEnabled();
+
+        if (habilitado) {
+            estado = Estado.SELECCIONANDO;
+            cmbTipo.setEnabled(false);
+            btnSeleccionar.setBackground(Color.orange);
+        } else {
+            estado = Estado.NADA;
+            cmbTipo.setEnabled(true);
+            btnSeleccionar.setBackground(null);
+        }
 
     }
 
     private void btnEliminarClick(ActionEvent evt) {
-        Trazo trazoSeleccionado = seleccionarTrazo(x, y);
-        if (trazoSeleccionado != null) {
+        if (estado == Estado.SELECCIONANDO && trazoSeleccionado != null) {
             trazos.remove(trazoSeleccionado);
             repaint();
+        } else {
+            if (!trazos.isEmpty()) {
+                trazos.removeLast();
+                repaint();
+            }
         }
     }
 
-    private Trazo seleccionarTrazo(int x, int y) {
-        for (Trazo trazo : trazos) {
-            if (x >= Math.min(trazo.x1, trazo.x2) && x <= Math.max(trazo.x1, trazo.x2) &&
-                    y >= Math.min(trazo.y1, trazo.y2) && y <= Math.max(trazo.y1, trazo.y2)) {
-                return trazo;
+    private Trazo seleccionarTrazo() {
+        if (estado == Estado.SELECCIONANDO) {
+            for (Trazo trazo : trazos) {
+                if (xInicial <= trazo.x1 && yInicial <= trazo.y1 && xFinal >= trazo.x2 && yFinal >= trazo.y2) {
+                    return trazo;
+                }
             }
         }
+
         return null;
     }
+
+    boolean bandera = false;
 
     private void pnlGraficaMouseClicked(MouseEvent evt) {
         if (estado == Estado.TRAZANDO) {
             String tipo = (String) cmbTipo.getSelectedItem();
-
             trazos.add(new Trazo(tipo, x, y, x2, y2));
             estado = Estado.NADA;
             pnlGrafica.repaint();
-        } else {
+        } else if (estado == Estado.NADA) {
             estado = Estado.TRAZANDO;
             x = evt.getX();
             y = evt.getY();
             x2 = x;
             y2 = y;
+        } else if (estado == Estado.SELECCIONANDO) {
+            if (bandera) {
+                xFinal = evt.getX();
+                yFinal = evt.getY();
+                bandera = false;
+
+                trazoSeleccionado = seleccionarTrazo();
+
+                if (trazoSeleccionado != null) {
+                } else {
+                    JOptionPane.showMessageDialog(null, "Ningún trazo selecionado");
+                }
+                repaint();
+
+            } else {
+                xInicial = evt.getX();
+                yInicial = evt.getY();
+                bandera = true;
+            }
         }
     }
 
