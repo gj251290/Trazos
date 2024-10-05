@@ -161,6 +161,7 @@ public class FrmEditor extends JFrame {
         tbEditor.add(btnLimpiar);
 
         cmbTipo.setModel(new DefaultComboBoxModel<>(new String[] { "Línea", "Rectángulo", "Círculo" }));
+        cmbTipo.setToolTipText("Selecionar trazo a dibujar");
         cmbTipo.setPreferredSize(new Dimension(100, 32));
         tbEditor.add(cmbTipo);
 
