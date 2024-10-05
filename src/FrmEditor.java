@@ -40,17 +40,14 @@ public class FrmEditor extends JFrame {
     int y;
     int x2;
     int y2;
-    int xInicial;
-    int xFinal;
-    int yInicial;
-    int yFinal;
     Color color;
+    boolean nuevaSeleccion;
 
     Trazo trazoSeleccionado = null;
+
     LinkedList<Trazo> trazos = new LinkedList<>();
 
     public FrmEditor() {
-
         tbEditor = new JToolBar();
         btnCargar = new JButton();
         btnGuardar = new JButton();
@@ -70,20 +67,42 @@ public class FrmEditor extends JFrame {
                 if (estado == Estado.TRAZANDO) {
                     g.setColor(color);
                     switch (cmbTipo.getSelectedIndex()) {
-                        case 0: // Línea
+                        case 0:
                             g.drawLine(x, y, x2, y2);
                             break;
-                        case 1: // Rectángulo
+                        case 1:
                             g.drawRect(Math.min(x, x2), Math.min(y, y2), Math.abs(x2 - x), Math.abs(y2 - y));
                             break;
-                        case 2: // Círculo
+                        case 2:
                             g.drawOval(Math.min(x, x2), Math.min(y, y2), Math.abs(x2 - x), Math.abs(y2 - y));
                             break;
                     }
-                } else if (estado == Estado.SELECCIONANDO) {
+                } else if (estado == Estado.SELECCIONANDO && !nuevaSeleccion) {
+
                     g.setColor(Color.YELLOW);
-                    g.drawRect(Math.min(xInicial, xFinal), Math.min(yInicial, yFinal), Math.abs(xFinal - xInicial),
-                            Math.abs(yFinal - yInicial));
+                    g.drawRect(Math.min(x, x2), Math.min(y, y2), Math.abs(x2 - x), Math.abs(y2 - y));
+                }
+
+                if (trazoSeleccionado != null) {
+                    g.setColor(Color.RED);
+                    switch (trazoSeleccionado.tipo) {
+                        case "Línea":
+                            g.drawLine(trazoSeleccionado.x1, trazoSeleccionado.y1,
+                                    trazoSeleccionado.x2, trazoSeleccionado.y2);
+                            break;
+                        case "Rectángulo":
+                            g.drawRect(Math.min(trazoSeleccionado.x1, trazoSeleccionado.x2),
+                                    Math.min(trazoSeleccionado.y1, trazoSeleccionado.y2),
+                                    Math.abs(trazoSeleccionado.x2 - trazoSeleccionado.x1),
+                                    Math.abs(trazoSeleccionado.y2 - trazoSeleccionado.y1));
+                            break;
+                        case "Círculo":
+                            g.drawOval(Math.min(trazoSeleccionado.x1, trazoSeleccionado.x2),
+                                    Math.min(trazoSeleccionado.y1, trazoSeleccionado.y2),
+                                    Math.abs(trazoSeleccionado.x2 - trazoSeleccionado.x1),
+                                    Math.abs(trazoSeleccionado.y2 - trazoSeleccionado.y1));
+                            break;
+                    }
                 }
             }
         };
@@ -143,7 +162,7 @@ public class FrmEditor extends JFrame {
             }
         });
 
-        pnlGrafica.setPreferredSize(new Dimension(300, 200));
+        pnlGrafica.setPreferredSize(new Dimension(800, 600));
 
         getContentPane().add(tbEditor, BorderLayout.NORTH);
         getContentPane().add(pnlGrafica, BorderLayout.CENTER);
@@ -179,6 +198,28 @@ public class FrmEditor extends JFrame {
                 case "Círculo":
                     g.drawOval(Math.min(trazo.x1, trazo.x2), Math.min(trazo.y1, trazo.y2),
                             Math.abs(trazo.x2 - trazo.x1), Math.abs(trazo.y2 - trazo.y1));
+                    break;
+            }
+        }
+
+        if (trazoSeleccionado != null) {
+            g.setColor(Color.RED);
+            switch (trazoSeleccionado.tipo) {
+                case "Línea":
+                    g.drawLine(trazoSeleccionado.x1, trazoSeleccionado.y1,
+                            trazoSeleccionado.x2, trazoSeleccionado.y2);
+                    break;
+                case "Rectángulo":
+                    g.drawRect(Math.min(trazoSeleccionado.x1, trazoSeleccionado.x2),
+                            Math.min(trazoSeleccionado.y1, trazoSeleccionado.y2),
+                            Math.abs(trazoSeleccionado.x2 - trazoSeleccionado.x1),
+                            Math.abs(trazoSeleccionado.y2 - trazoSeleccionado.y1));
+                    break;
+                case "Círculo":
+                    g.drawOval(Math.min(trazoSeleccionado.x1, trazoSeleccionado.x2),
+                            Math.min(trazoSeleccionado.y1, trazoSeleccionado.y2),
+                            Math.abs(trazoSeleccionado.x2 - trazoSeleccionado.x1),
+                            Math.abs(trazoSeleccionado.y2 - trazoSeleccionado.y1));
                     break;
             }
         }
@@ -239,30 +280,47 @@ public class FrmEditor extends JFrame {
             estado = Estado.SELECCIONANDO;
             cmbTipo.setEnabled(false);
             btnSeleccionar.setBackground(Color.orange);
+            nuevaSeleccion = true;
+            trazoSeleccionado = null;
+            repaint();
         } else {
             estado = Estado.NADA;
             cmbTipo.setEnabled(true);
             btnSeleccionar.setBackground(null);
+            nuevaSeleccion = false;
         }
-
     }
 
     private void btnEliminarClick(ActionEvent evt) {
         if (estado == Estado.SELECCIONANDO && trazoSeleccionado != null) {
             trazos.remove(trazoSeleccionado);
+            trazoSeleccionado = null;
             repaint();
         } else {
             if (!trazos.isEmpty()) {
                 trazos.removeLast();
                 repaint();
+            } else {
+                JOptionPane.showMessageDialog(null, "No hay trazos");
             }
         }
     }
 
     private Trazo seleccionarTrazo() {
         if (estado == Estado.SELECCIONANDO) {
+            int selXMin = Math.min(x, x2);
+            int selXMax = Math.max(x, x2);
+            int selYMin = Math.min(y, y2);
+            int selYMax = Math.max(y, y2);
+
             for (Trazo trazo : trazos) {
-                if (xInicial <= trazo.x1 && yInicial <= trazo.y1 && xFinal >= trazo.x2 && yFinal >= trazo.y2) {
+                int trazoXMin = Math.min(trazo.x1, trazo.x2);
+                int trazoXMax = Math.max(trazo.x1, trazo.x2);
+                int trazoYMin = Math.min(trazo.y1, trazo.y2);
+                int trazoYMax = Math.max(trazo.y1, trazo.y2);
+
+                if (selXMin <= trazoXMin && selXMax >= trazoXMax &&
+                        selYMin <= trazoYMin && selYMax >= trazoYMax) {
                     return trazo;
                 }
             }
@@ -270,8 +328,6 @@ public class FrmEditor extends JFrame {
 
         return null;
     }
-
-    boolean bandera = false;
 
     private void pnlGraficaMouseClicked(MouseEvent evt) {
         if (estado == Estado.TRAZANDO) {
@@ -286,30 +342,35 @@ public class FrmEditor extends JFrame {
             x2 = x;
             y2 = y;
         } else if (estado == Estado.SELECCIONANDO) {
-            if (bandera) {
-                xFinal = evt.getX();
-                yFinal = evt.getY();
-                bandera = false;
+            if (nuevaSeleccion) {
+                x = evt.getX();
+                y = evt.getY();
+                nuevaSeleccion = false;
+
+                x2 = x;
+                y2 = y;
+                repaint();
+            } else {
+                x2 = evt.getX();
+                y2 = evt.getY();
+                nuevaSeleccion = true;
 
                 trazoSeleccionado = seleccionarTrazo();
 
-                if (trazoSeleccionado != null) {
-                } else {
-                    JOptionPane.showMessageDialog(null, "Ningún trazo selecionado");
+                if (trazoSeleccionado == null) {
+                    JOptionPane.showMessageDialog(null, "Ningún trazo seleccionado");
                 }
                 repaint();
-
-            } else {
-                xInicial = evt.getX();
-                yInicial = evt.getY();
-                bandera = true;
             }
         }
     }
 
     private void pnlGraficaMouseMoved(MouseEvent evt) {
         if (estado == Estado.TRAZANDO) {
-
+            x2 = evt.getX();
+            y2 = evt.getY();
+            pnlGrafica.repaint();
+        } else if (estado == Estado.SELECCIONANDO && !nuevaSeleccion) {
             x2 = evt.getX();
             y2 = evt.getY();
             pnlGrafica.repaint();
