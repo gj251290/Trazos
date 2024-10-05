@@ -12,6 +12,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -129,10 +130,6 @@ public class FrmEditor extends JFrame {
         });
         tbEditor.add(btnGuardar);
 
-        cmbTipo.setModel(new DefaultComboBoxModel<>(new String[] { "Línea", "Rectángulo", "Círculo" }));
-        cmbTipo.setPreferredSize(new Dimension(100, 32));
-        tbEditor.add(cmbTipo);
-
         btnSeleccionar.setIcon(new ImageIcon(getClass().getResource("/iconos/seleccionar.png")));
         btnSeleccionar.setToolTipText("Seleccionar trazo");
         btnSeleccionar.setPreferredSize(new Dimension(60, 32));
@@ -163,6 +160,10 @@ public class FrmEditor extends JFrame {
         });
         tbEditor.add(btnLimpiar);
 
+        cmbTipo.setModel(new DefaultComboBoxModel<>(new String[] { "Línea", "Rectángulo", "Círculo" }));
+        cmbTipo.setPreferredSize(new Dimension(100, 32));
+        tbEditor.add(cmbTipo);
+
         pnlGrafica.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 pnlGraficaMouseClicked(evt);
@@ -186,6 +187,17 @@ public class FrmEditor extends JFrame {
 
         this.pack();
 
+        Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+        int anchoPantalla = pantalla.width;
+        int altoPantalla = pantalla.height;
+
+        int anchoVentana = getWidth();
+        int altoVentana = getHeight();
+
+        int posX = (anchoPantalla - anchoVentana) / 2;
+        int posY = (altoPantalla - altoVentana) / 2;
+
+        setLocation(posX, posY);
         setSize(800, 600);
         setTitle("Editor de gráficas");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -314,6 +326,8 @@ public class FrmEditor extends JFrame {
             cmbTipo.setEnabled(true);
             btnSeleccionar.setBackground(null);
             nuevaSeleccion = false;
+            trazoSeleccionado = null;
+            repaint();
         }
     }
 
