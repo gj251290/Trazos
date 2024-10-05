@@ -30,6 +30,7 @@ public class FrmEditor extends JFrame {
     private JButton btnCargar;
     private JButton btnGuardar;
     private JButton btnEliminar;
+    private JButton btnLimpiar;
     private JButton btnSeleccionar;
     private JComboBox<String> cmbTipo;
     private JToolBar tbEditor;
@@ -52,6 +53,7 @@ public class FrmEditor extends JFrame {
         btnCargar = new JButton();
         btnGuardar = new JButton();
         btnEliminar = new JButton();
+        btnLimpiar = new JButton();
         cmbTipo = new JComboBox<>();
         btnSeleccionar = new JButton();
 
@@ -151,6 +153,16 @@ public class FrmEditor extends JFrame {
         });
         tbEditor.add(btnEliminar);
 
+        btnLimpiar.setIcon(new ImageIcon(getClass().getResource("/iconos/limpiar.png")));
+        btnLimpiar.setToolTipText("Limpiar lienzo");
+        btnLimpiar.setPreferredSize(new Dimension(60, 32));
+        btnLimpiar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                limpiarPanel();
+            }
+        });
+        tbEditor.add(btnLimpiar);
+
         pnlGrafica.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 pnlGraficaMouseClicked(evt);
@@ -181,6 +193,7 @@ public class FrmEditor extends JFrame {
     }
 
     private void limpiarPanel() {
+        trazos.clear();
         pnlGrafica.repaint();
     }
 
@@ -260,6 +273,19 @@ public class FrmEditor extends JFrame {
 
             if (!selectedFile.getName().toLowerCase().endsWith(".obj")) {
                 selectedFile = new File(selectedFile.getAbsolutePath() + ".obj");
+            }
+
+            if (selectedFile.exists()) {
+
+                int respuesta = JOptionPane.showConfirmDialog(this,
+                        "El archivo ya existe. ¿Deseas reemplazarlo?",
+                        "Confirmación de escritura",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+
+                if (respuesta != JOptionPane.YES_OPTION) {
+                    return;
+                }
             }
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
@@ -376,5 +402,4 @@ public class FrmEditor extends JFrame {
             pnlGrafica.repaint();
         }
     }
-
 }
