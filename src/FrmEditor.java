@@ -207,6 +207,11 @@ public class FrmEditor extends JFrame {
 
     private void limpiarPanel() {
         trazos.clear();
+        estado = Estado.NADA;
+        cmbTipo.setEnabled(true);
+        btnSeleccionar.setBackground(null);
+        nuevaSeleccion = false;
+        trazoSeleccionado = null;
         pnlGrafica.repaint();
     }
 
